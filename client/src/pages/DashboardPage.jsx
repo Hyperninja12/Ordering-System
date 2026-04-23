@@ -264,14 +264,14 @@ function DashboardPage({ user, onLogout }) {
           isSidebarCollapsed ? "lg:grid-cols-[88px_1fr]" : "lg:grid-cols-[260px_1fr]"
         }`}
       >
-        <Card className="sidebar-scroll transition-all duration-300 ease-in-out lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:overflow-y-auto">
-          <CardHeader>
+        <Card className="sidebar-scroll transition-all duration-300 ease-in-out lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:overflow-y-auto bg-slate-900/95 border border-slate-700/50 shadow-lg shadow-slate-900/30 backdrop-blur-sm">
+          <CardHeader className="border-b border-slate-700/50 pb-4">
             <div className="flex items-center justify-between gap-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Hotel className="h-5 w-5 text-primary" />
+                <Hotel className="h-5 w-5 text-cyan-400" />
                 <span
-                  className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
-                    isSidebarCollapsed ? "max-w-0 opacity-0" : "max-w-[140px] opacity-100"
+                  className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out font-semibold ${
+                    isSidebarCollapsed ? "max-w-0 opacity-0" : "max-w-[140px] opacity-100 text-slate-100"
                   }`}
                 >
                   Booking System
@@ -279,7 +279,7 @@ function DashboardPage({ user, onLogout }) {
               </CardTitle>
               <Button
                 aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                className="bg-transparent hover:bg-transparent"
+                className="bg-transparent hover:bg-slate-700/50 text-slate-400 hover:text-slate-200"
                 onClick={() => setIsSidebarCollapsed((prev) => !prev)}
                 size="icon-sm"
                 type="button"
@@ -306,10 +306,10 @@ function DashboardPage({ user, onLogout }) {
                 >
                   <div className="relative flex justify-center">
                     {index < SIDEBAR_MODULES.length - 1 && !isSidebarCollapsed ? (
-                      <span className="absolute left-1/2 top-4 h-[calc(100%+1.2rem)] w-px -translate-x-1/2 bg-[#2f3338]" />
+                      <span className="absolute left-1/2 top-4 h-[calc(100%+1.2rem)] w-px -translate-x-1/2 bg-slate-600/50" />
                     ) : null}
-                    <span className="relative z-10 mt-0.5 flex h-4 w-4 items-center justify-center bg-card">
-                      <ModuleIcon className="h-3.5 w-3.5 text-[#2f3338]" />
+                    <span className="relative z-10 mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-slate-700/60 border border-slate-600/40">
+                      <ModuleIcon className="h-3 w-3 text-cyan-400" />
                     </span>
                   </div>
 
@@ -319,7 +319,7 @@ function DashboardPage({ user, onLogout }) {
                     }`}
                   >
                     <p
-                      className={`overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-all duration-300 ease-in-out ${
+                      className={`overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-wide text-slate-400 transition-all duration-300 ease-in-out ${
                         isSidebarCollapsed ? "max-h-0 opacity-0" : "max-h-6 opacity-100"
                       }`}
                     >
@@ -335,16 +335,16 @@ function DashboardPage({ user, onLogout }) {
                             key={item.id}
                             className={`flex w-full items-center rounded-md px-3 py-2 text-left text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
                               isActive
-                                ? "bg-primary text-primary-foreground hover:brightness-95"
-                                : "border border-transparent bg-transparent text-foreground hover:border-[#2f3338]/25 hover:bg-[#2f3338]/18"
+                                ? "bg-cyan-600 text-white hover:bg-cyan-500 shadow-[0_0_12px_rgba(8,145,178,0.4)]"
+                                : "border border-transparent bg-transparent text-slate-300 hover:border-slate-600/40 hover:bg-slate-700/40 hover:text-slate-100"
                             } ${isSidebarCollapsed ? "justify-center px-2" : "gap-2"}`}
                             onClick={() => setActiveModule(item.id)}
                             type="button"
                             title={isSidebarCollapsed ? item.label : undefined}
                           >
-                            <Icon className="h-4 w-4" />
+                            <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-slate-400"}`} />
                             <span
-                              className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
+                              className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out font-medium ${
                                 isSidebarCollapsed ? "max-w-0 opacity-0" : "max-w-[140px] opacity-100"
                               }`}
                             >
@@ -435,30 +435,114 @@ function DashboardPage({ user, onLogout }) {
             </Card>
           ) : null}
 
-          <Card>
-            <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <UserCircle2 className="h-10 w-10 text-primary" />
-                <div>
-                  <h1 className="text-xl font-semibold text-foreground">{activeContent.title}</h1>
-                  <p className="text-sm text-muted-foreground">
-                    {user?.name || "User"} ({user?.email || "No email"})
-                  </p>
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    Role: {user?.role || "user"} | Active Tab: {activeModuleItem.label}
-                  </p>
+          {/* Top Navbar with Overview Dashboard - Always Visible & Prominent */}
+          <Card className={`border-2 ${activeModule === "dashboard" ? "border-cyan-400 bg-gradient-to-r from-cyan-900/90 via-slate-900/90 to-slate-900/90 shadow-[0_0_30px_rgba(34,211,238,0.3)]" : "border-slate-600 bg-gradient-to-r from-slate-800/90 via-slate-900/90 to-slate-900/90 shadow-lg"}`}>
+            <CardContent className="p-4">
+              <div className="flex flex-col gap-4">
+                {/* Top row: Overview Dashboard info + User info */}
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  {/* Overview Dashboard Section - Always Visible & Clickable */}
+                  <button 
+                    className="flex items-center gap-3 text-left group transition-all duration-200 hover:scale-[1.02]"
+                    onClick={() => setActiveModule("dashboard")}
+                    type="button"
+                  >
+                    <div className={`flex h-14 w-14 items-center justify-center rounded-xl border-2 shadow-lg transition-all ${activeModule === "dashboard" ? "bg-cyan-500/30 border-cyan-300 shadow-cyan-500/20" : "bg-slate-600/30 border-slate-400 shadow-slate-500/20 group-hover:border-cyan-400 group-hover:bg-cyan-500/20"}`}>
+                      <LayoutDashboard className={`h-7 w-7 ${activeModule === "dashboard" ? "text-cyan-300" : "text-slate-300 group-hover:text-cyan-300"}`} />
+                    </div>
+                    <div className="text-left">
+                      <div className="flex items-center gap-2">
+                        {activeModule === "dashboard" ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300 bg-cyan-400/20 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-cyan-200 font-semibold">
+                            <Sparkles className="h-3 w-3 animate-pulse" />
+                            Live
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-500 bg-slate-500/20 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-slate-300 font-semibold">
+                            Overview
+                          </span>
+                        )}
+                        <h2 className={`text-xl font-bold ${activeModule === "dashboard" ? "text-white" : "text-slate-200 group-hover:text-white"}`}>
+                          Overview Dashboard
+                        </h2>
+                      </div>
+                      <p className={`text-sm font-medium mt-1 ${activeModule === "dashboard" ? "text-cyan-100" : "text-slate-400 group-hover:text-slate-300"}`}>
+                        {activeModule === "dashboard" 
+                          ? `Real-time booking intelligence • ${dashboardStats.length} active metrics`
+                          : "📊 Click to view real-time metrics"
+                        }
+                      </p>
+                    </div>
+                  </button>
+                  
+                  <div className="flex items-center gap-3">
+                    <UserCircle2 className="h-8 w-8 text-slate-300 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-slate-200 truncate">
+                        {user?.name || "User"}
+                      </p>
+                      <p className="text-xs text-slate-400 truncate">
+                        {user?.email || "No email"} • {user?.role || "user"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <div className="relative w-full sm:w-64">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input className="pl-9" placeholder={`Search in ${activeModuleItem.label}...`} />
+                {/* Bottom row: Quick stats + Search + Logout */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-slate-600/50">
+                  {/* Quick Stats - Always show, but enhanced on dashboard */}
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {activeModule === "dashboard" 
+                      ? dashboardStats.slice(0, 3).map((stat, idx) => (
+                          <div key={idx} className="flex items-center gap-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 px-3 py-1.5">
+                            <div className={`h-2.5 w-2.5 rounded-full shadow-[0_0_8px_currentColor] ${idx === 0 ? 'bg-cyan-400 text-cyan-400 animate-pulse' : idx === 1 ? 'bg-emerald-400 text-emerald-400' : 'bg-fuchsia-400 text-fuchsia-400'}`} />
+                            <span className="text-xs text-cyan-100/70">{stat.label}:</span>
+                            <span className="text-sm font-bold text-cyan-100">
+                              {stat.value}
+                            </span>
+                          </div>
+                        ))
+                      : activeContent.stats.slice(0, 3).map((stat, idx) => (
+                          <div key={idx} className="flex items-center gap-2 rounded-lg bg-slate-700/30 border border-slate-600/30 px-3 py-1.5">
+                            <div className="h-2.5 w-2.5 rounded-full bg-slate-400" />
+                            <span className="text-xs text-slate-400">{stat.label}:</span>
+                            <span className="text-sm font-bold text-slate-200">
+                              {stat.value}
+                            </span>
+                          </div>
+                        ))
+                    }
+                  </div>
+                  
+                  <div className="flex items-center gap-3 ml-auto">
+                    {/* Enhanced Search Input */}
+                    <div className="relative w-full sm:w-64">
+                      <Search className={`pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 ${activeModule === "dashboard" ? "text-cyan-300" : "text-slate-400"}`} />
+                      <Input 
+                        className={`pl-9 h-10 text-sm font-medium border-2 transition-all focus:ring-2 ${
+                          activeModule === "dashboard" 
+                            ? "border-cyan-500/40 bg-slate-800/60 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:ring-cyan-400/20" 
+                            : "border-slate-600 bg-slate-800/60 text-slate-100 placeholder:text-slate-500 focus:border-slate-400 focus:ring-slate-400/20"
+                        }`} 
+                        placeholder={`Search in ${activeModuleItem.label}...`} 
+                      />
+                    </div>
+                    {/* Enhanced Logout Button */}
+                    <Button 
+                      onClick={onLogout} 
+                      variant="outline" 
+                      size="sm"
+                      className={`border-2 font-semibold transition-all hover:scale-105 ${
+                        activeModule === "dashboard"
+                          ? "border-red-500/50 text-red-300 bg-red-500/10 hover:bg-red-500/20 hover:border-red-400"
+                          : "border-slate-500 text-slate-300 bg-slate-700/30 hover:bg-slate-600/40 hover:border-slate-400"
+                      }`}
+                    >
+                      <LogOut className="h-4 w-4 mr-1.5" />
+                      <span className="hidden sm:inline">Logout</span>
+                    </Button>
+                  </div>
                 </div>
-                <Button onClick={onLogout} variant="outline">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </Button>
               </div>
             </CardContent>
           </Card>

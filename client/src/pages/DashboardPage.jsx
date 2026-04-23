@@ -44,6 +44,15 @@ const SIDEBAR_MODULES = [
   },
 ];
 
+const MODULE_FLOW = [
+  { id: "reservations", label: "Reservation" },
+  { id: "calendar", label: "Schedule" },
+  { id: "rooms", label: "Room Assign" },
+  { id: "guests", label: "Guest Profile" },
+  { id: "payments", label: "Payment" },
+  { id: "settings", label: "Finalize" },
+];
+
 const MODULE_CONTENT = {
   dashboard: {
     title: "Overview Dashboard",
@@ -287,6 +296,19 @@ function DashboardPage({ user, onLogout }) {
         </Card>
 
         <div className="space-y-4">
+          {activeModule === "dashboard" ? (
+            <Card className="relative overflow-hidden border-primary/30 bg-[linear-gradient(135deg,rgba(14,165,233,0.16),rgba(99,102,241,0.10),rgba(16,185,129,0.10))]">
+              <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-cyan-400/20 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-20 left-16 h-44 w-44 rounded-full bg-fuchsia-400/15 blur-3xl" />
+              <CardContent className="relative p-6">
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Future Console</p>
+                <h2 className="mt-2 text-2xl font-semibold text-foreground">Smart Booking Command Center</h2>
+                <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                  Live status, predictive occupancy, and step-by-step booking orchestration in one view.
+                </p>
+              </CardContent>
+            </Card>
+          ) : null}
 
           <Card>
             <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
@@ -316,6 +338,41 @@ function DashboardPage({ user, onLogout }) {
             </CardContent>
           </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Connected Booking Process</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center gap-2">
+                {MODULE_FLOW.map((step, index) => {
+                  const isCurrent = step.id === activeModule;
+                  const StepSource =
+                    SIDEBAR_MODULES.flatMap((module) => module.items).find((item) => item.id === step.id) ||
+                    SIDEBAR_MODULES[0].items[0];
+                  const StepIcon = StepSource.icon;
+
+                  return (
+                    <div key={step.id} className="flex items-center gap-2">
+                      <div
+                        className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm ${
+                          isCurrent
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground"
+                        }`}
+                      >
+                        <StepIcon className="h-4 w-4" />
+                        {step.label}
+                      </div>
+                      {index < MODULE_FLOW.length - 1 ? (
+                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid gap-4 md:grid-cols-3">
             {activeContent.stats.map((kpi, index) => (
               <Card
@@ -339,6 +396,22 @@ function DashboardPage({ user, onLogout }) {
               </Card>
             ))}
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{activeModuleItem.label} Quick Process</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4 text-sm text-muted-foreground">{activeContent.description}</p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {activeContent.checklist.map((step) => (
+                  <div key={step} className="rounded-md border border-border px-3 py-2 text-sm">
+                    {step}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
           {activeModule === "reservations" ? (
             <Card>

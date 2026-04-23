@@ -1,18 +1,25 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  Activity,
   ArrowRight,
   BedDouble,
   BookOpenCheck,
   CalendarClock,
   ChevronLeft,
+  Cpu,
   CreditCard,
+  Database,
   Hotel,
   LayoutDashboard,
+  Link2,
   LogOut,
+  ShieldCheck,
   Search,
   Settings,
+  Sparkles,
   UserCircle2,
   Users,
+  Workflow,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -168,9 +175,38 @@ const RESERVATION_QUEUE = [
   { code: "RQ-8803", guest: "Mia Tan", stay: "Apr 27 - Apr 30", roomType: "Suite", stage: "Collect Request" },
 ];
 
+const BLOCKCHAIN_NODES = [
+  { id: "validator-sg-01", region: "Singapore", health: "Healthy", uptime: "99.99%" },
+  { id: "validator-tx-04", region: "Texas", health: "Healthy", uptime: "99.95%" },
+  { id: "validator-jp-03", region: "Tokyo", health: "Syncing", uptime: "99.91%" },
+];
+
+const LEDGER_STREAM = [
+  { id: "0x8a34..d2e1", action: "Reservation Token Minted", module: "Reservations" },
+  { id: "0x7c14..51f0", action: "Room Allocation Confirmed", module: "Rooms" },
+  { id: "0x4e72..c099", action: "Payment Settlement Posted", module: "Payments" },
+];
+
 function DashboardPage({ user, onLogout }) {
   const [activeModule, setActiveModule] = useState("dashboard");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [chainTick, setChainTick] = useState(0);
+  const [clock, setClock] = useState(() => new Date());
+
+  useEffect(() => {
+    const streamInterval = setInterval(() => {
+      setChainTick((tick) => tick + 1);
+    }, 2200);
+
+    const clockInterval = setInterval(() => {
+      setClock(new Date());
+    }, 1000);
+
+    return () => {
+      clearInterval(streamInterval);
+      clearInterval(clockInterval);
+    };
+  }, []);
 
   const activeModuleItem = useMemo(
     () =>
@@ -182,8 +218,47 @@ function DashboardPage({ user, onLogout }) {
 
   const activeContent = MODULE_CONTENT[activeModule] || MODULE_CONTENT.dashboard;
 
+  const dashboardTelemetry = useMemo(
+    () => ({
+      blockHeight: 248021 + chainTick,
+      txPerSecond: 38 + ((chainTick * 3) % 9),
+      finality: `${(1.1 + ((chainTick % 4) * 0.2)).toFixed(1)}s`,
+      gasIndex: `${16 + (chainTick % 6)} gwei`,
+    }),
+    [chainTick]
+  );
+
+  const occupancyBars = useMemo(
+    () => Array.from({ length: 12 }, (_, index) => 35 + ((index * 9 + chainTick * 7) % 58)),
+    [chainTick]
+  );
+
+  const dashboardStats =
+    activeModule === "dashboard"
+      ? [
+          { label: "Current Block Height", value: dashboardTelemetry.blockHeight.toLocaleString() },
+          { label: "Transactions / sec", value: dashboardTelemetry.txPerSecond.toString() },
+          { label: "Finality Window", value: dashboardTelemetry.finality },
+        ]
+      : activeContent.stats;
+
+  const ledgerFeed = useMemo(
+    () =>
+      LEDGER_STREAM.map((item, index) => ({
+        ...item,
+        confirmations: 12 + ((chainTick + index * 4) % 18),
+      })),
+    [chainTick]
+  );
+
   return (
-    <main className="min-h-screen bg-background p-4 sm:p-6">
+    <main
+      className={`min-h-screen p-4 sm:p-6 ${
+        activeModule === "dashboard"
+          ? "bg-[radial-gradient(circle_at_10%_10%,rgba(56,189,248,0.18),transparent_36%),radial-gradient(circle_at_88%_12%,rgba(20,184,166,0.14),transparent_32%),linear-gradient(165deg,#020617_0%,#0f172a_40%,#111827_100%)]"
+          : "bg-background"
+      }`}
+    >
       <section
         className={`mx-auto grid w-full max-w-7xl gap-4 transition-[grid-template-columns] duration-300 ease-in-out ${
           isSidebarCollapsed ? "lg:grid-cols-[88px_1fr]" : "lg:grid-cols-[260px_1fr]"
@@ -287,6 +362,78 @@ function DashboardPage({ user, onLogout }) {
         </Card>
 
         <div className="space-y-4">
+          {activeModule === "dashboard" ? (
+            <Card className="relative overflow-hidden border-cyan-300/30 bg-slate-950/70 text-slate-100 shadow-[0_0_30px_rgba(45,212,191,0.2)] backdrop-blur">
+              <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-cyan-400/20 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-20 left-20 h-44 w-44 rounded-full bg-teal-400/20 blur-3xl" />
+              <div className="pointer-events-none absolute inset-0 opacity-20 [background:linear-gradient(transparent_95%,rgba(45,212,191,0.65)_95%),linear-gradient(90deg,transparent_95%,rgba(45,212,191,0.65)_95%)] [background-size:32px_32px]" />
+              <CardContent className="relative p-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-2">
+                    <p className="inline-flex items-center gap-2 rounded-full border border-cyan-300/40 bg-cyan-400/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-cyan-200">
+                      <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+                      Chain-Synced Dashboard
+                    </p>
+                    <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                      Futuristic Booking Ledger
+                    </h2>
+                    <p className="max-w-2xl text-sm text-cyan-100/80">
+                      Real-time booking intelligence powered by validator telemetry, block finality, and
+                      predictive occupancy streams.
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-cyan-300/30 bg-slate-900/70 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.14em] text-cyan-200/80">Network Time</p>
+                    <p className="mt-1 text-lg font-semibold text-white">{clock.toLocaleTimeString()}</p>
+                    <p className="text-xs text-cyan-100/70">Gas index: {dashboardTelemetry.gasIndex}</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                  <div className="rounded-lg border border-cyan-400/30 bg-slate-900/70 p-4">
+                    <p className="mb-3 text-xs uppercase tracking-[0.15em] text-cyan-200">Occupancy Signal</p>
+                    <div className="flex h-24 items-end gap-2">
+                      {occupancyBars.map((value, index) => (
+                        <div
+                          key={`${value}-${index}`}
+                          className="flex-1 rounded-t bg-gradient-to-t from-cyan-500/80 to-teal-300/70 transition-all duration-700"
+                          style={{
+                            height: `${value}%`,
+                            boxShadow: index % 3 === chainTick % 3 ? "0 0 16px rgba(34,211,238,0.5)" : "none",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {BLOCKCHAIN_NODES.map((node, index) => (
+                      <div
+                        key={node.id}
+                        className="rounded-lg border border-cyan-300/30 bg-slate-900/70 p-3 transition-all duration-500"
+                        style={{
+                          transform: index === chainTick % BLOCKCHAIN_NODES.length ? "translateX(-2px)" : "none",
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4 text-cyan-200" />
+                            <p className="text-sm font-medium text-white">{node.id}</p>
+                          </div>
+                          <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-2 py-0.5 text-[11px] text-cyan-100">
+                            {node.health}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-cyan-100/70">
+                          {node.region} node • uptime {node.uptime}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
 
           <Card>
             <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
@@ -317,19 +464,19 @@ function DashboardPage({ user, onLogout }) {
           </Card>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {activeContent.stats.map((kpi, index) => (
+            {dashboardStats.map((kpi, index) => (
               <Card
                 key={kpi.label}
                 className={
                   activeModule === "dashboard"
-                    ? `border bg-gradient-to-br ${DASHBOARD_STAT_GRADIENTS[index % DASHBOARD_STAT_GRADIENTS.length]}`
+                    ? `border border-cyan-300/30 bg-gradient-to-br ${DASHBOARD_STAT_GRADIENTS[index % DASHBOARD_STAT_GRADIENTS.length]} text-slate-50`
                     : ""
                 }
               >
                 <CardContent className="p-6">
                   <p
                     className={`text-sm ${
-                      activeModule === "dashboard" ? "text-foreground/90" : "text-muted-foreground"
+                      activeModule === "dashboard" ? "text-slate-200" : "text-muted-foreground"
                     }`}
                   >
                     {kpi.label}
@@ -339,6 +486,61 @@ function DashboardPage({ user, onLogout }) {
               </Card>
             ))}
           </div>
+
+          {activeModule === "dashboard" ? (
+            <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+              <Card className="border-cyan-300/30 bg-slate-950/60 text-slate-100">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg text-cyan-100">
+                    <Workflow className="h-4 w-4 text-cyan-300" />
+                    Smart Contract Pipeline
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="rounded-md border border-cyan-300/25 bg-slate-900/70 p-3">
+                    <p className="text-xs uppercase tracking-wide text-cyan-200/85">Step 1</p>
+                    <p className="text-sm text-white">Reservation intent signed and broadcast to booking chain.</p>
+                  </div>
+                  <div className="rounded-md border border-cyan-300/25 bg-slate-900/70 p-3">
+                    <p className="text-xs uppercase tracking-wide text-cyan-200/85">Step 2</p>
+                    <p className="text-sm text-white">Room assignment verified through availability oracle.</p>
+                  </div>
+                  <div className="rounded-md border border-cyan-300/25 bg-slate-900/70 p-3">
+                    <p className="text-xs uppercase tracking-wide text-cyan-200/85">Step 3</p>
+                    <p className="text-sm text-white">Payment settlement reaches finality and triggers guest notice.</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-cyan-300/30 bg-slate-950/60 text-slate-100">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg text-cyan-100">
+                    <Database className="h-4 w-4 text-cyan-300" />
+                    Ledger Event Stream
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {ledgerFeed.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="rounded-md border border-cyan-300/25 bg-slate-900/70 p-3 transition-all duration-500"
+                      style={{
+                        opacity: index === chainTick % ledgerFeed.length ? 1 : 0.8,
+                      }}
+                    >
+                      <p className="flex items-center gap-2 text-sm text-white">
+                        <Link2 className="h-3.5 w-3.5 text-cyan-300" />
+                        {item.action}
+                      </p>
+                      <p className="mt-1 text-xs text-cyan-100/80">
+                        {item.id} • {item.module} • {item.confirmations} confirmations
+                      </p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          ) : null}
 
           {activeModule === "reservations" ? (
             <Card>
@@ -407,13 +609,20 @@ function DashboardPage({ user, onLogout }) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Recent Bookings</CardTitle>
+              <CardTitle
+                className={`text-lg ${activeModule === "dashboard" ? "flex items-center gap-2 text-cyan-100" : ""}`}
+              >
+                {activeModule === "dashboard" ? <Activity className="h-4 w-4 text-cyan-300" /> : null}
+                Recent Bookings
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={activeModule === "dashboard" ? "text-slate-100" : ""}>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[640px] text-left text-sm">
                   <thead>
-                    <tr className="border-b border-border text-muted-foreground">
+                    <tr
+                      className={`border-b ${activeModule === "dashboard" ? "border-cyan-300/30 text-cyan-100/80" : "border-border text-muted-foreground"}`}
+                    >
                       <th className="pb-3 font-medium">Booking Code</th>
                       <th className="pb-3 font-medium">Guest</th>
                       <th className="pb-3 font-medium">Room</th>
@@ -423,8 +632,17 @@ function DashboardPage({ user, onLogout }) {
                   </thead>
                   <tbody>
                     {RECENT_BOOKINGS.map((booking) => (
-                      <tr key={booking.code} className="border-b border-border/70">
-                        <td className="py-3 font-medium text-foreground">{booking.code}</td>
+                      <tr
+                        key={booking.code}
+                        className={
+                          activeModule === "dashboard"
+                            ? "border-b border-cyan-300/15 transition-colors hover:bg-cyan-300/5"
+                            : "border-b border-border/70"
+                        }
+                      >
+                        <td className={`py-3 font-medium ${activeModule === "dashboard" ? "text-cyan-100" : "text-foreground"}`}>
+                          {booking.code}
+                        </td>
                         <td className="py-3">{booking.guest}</td>
                         <td className="py-3">{booking.room}</td>
                         <td className="py-3">
@@ -436,7 +654,9 @@ function DashboardPage({ user, onLogout }) {
                             {booking.status}
                           </span>
                         </td>
-                        <td className="py-3 text-muted-foreground">{booking.payment}</td>
+                        <td className={activeModule === "dashboard" ? "py-3 text-cyan-100/80" : "py-3 text-muted-foreground"}>
+                          {booking.payment}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
